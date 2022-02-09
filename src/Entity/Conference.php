@@ -26,7 +26,7 @@ class Conference
     private ?bool $isInternational;
 
     #[ORM\OneToMany(mappedBy: 'conference', targetEntity: Comment::class, orphanRemoval: true)]
-    private ArrayCollection $comments;
+    private Collection $comments;
 
     #[Pure] public function __construct()
     {
@@ -102,5 +102,10 @@ class Conference
         }
 
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->city.' '.$this->year;
     }
 }

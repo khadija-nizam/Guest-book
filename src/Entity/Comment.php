@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\CommentRepository;
 use Doctrine\ORM\Mapping as ORM;
+use JetBrains\PhpStorm\Pure;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
 class Comment
@@ -107,5 +108,10 @@ class Comment
         $this->photoFilename = $photoFilename;
 
         return $this;
+    }
+
+    #[Pure] public function __toString(): string
+    {
+        return (string) $this->getEmail();
     }
 }
