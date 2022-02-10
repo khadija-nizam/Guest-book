@@ -3,10 +3,12 @@
 namespace App\Entity;
 
 use App\Repository\CommentRepository;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use JetBrains\PhpStorm\Pure;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Comment
 {
     #[ORM\Id]
@@ -24,7 +26,7 @@ class Comment
     private ?string $email;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    private ?\DateTimeImmutable $createdAt;
+    private ?DateTimeImmutable $createdAt;
 
     #[ORM\ManyToOne(targetEntity: Conference::class, inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
@@ -74,16 +76,22 @@ class Comment
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    public function setCreatedAt(DateTimeImmutable $createdAt): self
     {
         $this->createdAt = $createdAt;
 
         return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function setCreatedAtValue()
+    {
+        $this->createdAt = new DateTimeImmutable();
     }
 
     public function getConference(): ?Conference
