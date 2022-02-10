@@ -8,4 +8,7 @@
 /var/
 /vendor/
 /.idea
+/public/uploads
+composer.lock
+symfony.lock
 ###< symfony/framework-bundle ###
