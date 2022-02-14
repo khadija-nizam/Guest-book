@@ -19,15 +19,15 @@ class Comment
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank]
-    private ?string $author;
+    private ?string $author = null;
 
     #[ORM\Column(type: 'text')]
-    private ?string $text;
+    private ?string $text = null;
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank]
     #[Assert\Email]
-    private ?string $email;
+    private ?string $email = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private ?DateTimeImmutable $createdAt;
