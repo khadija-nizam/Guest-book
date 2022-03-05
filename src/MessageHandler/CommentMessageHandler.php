@@ -2,6 +2,7 @@
 
 namespace App\MessageHandler;
 
+use App\ImageOptimizer;
 use App\Message\CommentMessage;
 use App\Repository\CommentRepository;
 use App\SpamChecker;
@@ -12,6 +13,9 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Workflow\WorkflowInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class CommentMessageHandler implements MessageHandlerInterface
@@ -23,7 +27,9 @@ class CommentMessageHandler implements MessageHandlerInterface
     private WorkflowInterface $workflow;
     private ?LoggerInterface $logger;
     private string $adminEmail;
+    private string $photoDir;
     private MailerInterface $mailer;
+    private ImageOptimizer $imageOptimizer;
 
     /**
      * @param EntityManagerInterface $entityManager
@@ -32,7 +38,9 @@ class CommentMessageHandler implements MessageHandlerInterface
      * @param MessageBusInterface $bus
      * @param WorkflowInterface $commentStateMachine
      * @param MailerInterface $mailer
+     * @param ImageOptimizer $imageOptimizer
      * @param string $adminEmail
+     * @param string $photoDir
      * @param LoggerInterface|null $logger
      */
     public function __construct(EntityManagerInterface $entityManager,
@@ -41,7 +49,9 @@ class CommentMessageHandler implements MessageHandlerInterface
                                 MessageBusInterface $bus,
                                 WorkflowInterface $commentStateMachine,
                                 MailerInterface $mailer,
+                                ImageOptimizer $imageOptimizer,
                                 string $adminEmail,
+                                string $photoDir,
                                 LoggerInterface $logger = null)
     {
         $this->entityManager = $entityManager;
@@ -50,14 +60,20 @@ class CommentMessageHandler implements MessageHandlerInterface
         $this->bus = $bus;
         $this->workflow = $commentStateMachine;
         $this->mailer = $mailer;
+        $this->imageOptimizer = $imageOptimizer;
         $this->adminEmail = $adminEmail;
+        $this->photoDir = $photoDir;
         $this->logger = $logger;
     }
 
 
     /**
+     * @param CommentMessage $message
      * @throws TransportExceptionInterface
      * @throws \Symfony\Component\Mailer\Exception\TransportExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
      */
     public function __invoke(CommentMessage $message)
     {
@@ -88,7 +104,14 @@ class CommentMessageHandler implements MessageHandlerInterface
             ->to($this->adminEmail)
             ->context(['comment' => $comment])
             );
-        } elseif ($this->logger) {
+        } elseif ($this->workflow->can($comment, 'optimize')){
+            if($comment->getPhotoFilename()){
+                $this->imageOptimizer->resize($this->photoDir . '/' . $comment->getPhotoFilename());
+            }
+            $this->workflow->apply($comment, 'optimize');
+            $this->entityManager->flush();
+        }
+        elseif ($this->logger) {
             $this->logger->debug('Dropping comment message', ['comment' => $comment->getId(), 'state' => $comment->getState()]);
         }
 

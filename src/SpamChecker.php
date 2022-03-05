@@ -3,6 +3,9 @@ namespace App;
 
 use App\Entity\Comment;
 use RuntimeException;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -18,10 +21,14 @@ class SpamChecker
     }
 
     /**
+     * @param Comment $comment
+     * @param array $context
      * @return int Spam score: 0: not spam, 1: maybe spam, 2: blatant spam
      *
-     * @throws RuntimeException if the call did not work
      * @throws TransportExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
      */
     public function getSpamScore(Comment $comment, array $context): int
     {
