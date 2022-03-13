@@ -35,9 +35,8 @@ spa/node_modules/
 spa/public/build/
 spa/npm-debug.log
 spa/yarn-error.log
-spa/public
-!spa/public/index.html
+spa/public/*
 ###< symfony/webpack-encore-bundle ###
 
 # used later by Cordova
-/app/
+spa/app/
