@@ -29,3 +29,15 @@ yarn-error.log
 /phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
+
+###> symfony/webpack-encore-bundle ###
+spa/node_modules/
+spa/public/build/
+spa/npm-debug.log
+spa/yarn-error.log
+spa/public
+!spa/public/index.html
+###< symfony/webpack-encore-bundle ###
+
+# used later by Cordova
+/app/
