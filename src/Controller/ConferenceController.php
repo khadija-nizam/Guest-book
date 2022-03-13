@@ -19,7 +19,6 @@ use Symfony\Component\Notifier\Notification\Notification;
 use Symfony\Component\Notifier\NotifierInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -43,16 +42,25 @@ class ConferenceController extends AbstractController
         $this->bus = $bus;
     }
 
+    /**
+     * @return Response
+     */
+    #[Route('/')]
+    public function indexNoLocale(): Response
+    {
+        return $this->redirectToRoute('homepage', ['_locale' => 'en']);
+    }
+
 
     /**
      * @throws SyntaxError
      * @throws RuntimeError
      * @throws LoaderError
      */
-    #[Route('/', name: 'homepage')]
+    #[Route('/{_locale<%app.supported_locales%>}/', name: 'homepage')]
     public function index(ConferenceRepository $conferenceRepository): Response
     {
-        $response =  new Response($this->twig->render('conference/index.html.twig', [
+        $response = new Response($this->twig->render('conference/index.html.twig', [
             'conferences' => $conferenceRepository->findAll(),
         ]));
         $response->setSharedMaxAge(3600);
@@ -71,12 +79,12 @@ class ConferenceController extends AbstractController
      * @throws SyntaxError
      * @throws Exception
      */
-    #[Route('/conference/{slug}', name: 'conference')]
-    public function show(Request $request,
-                         Conference $conference,
+    #[Route('/{_locale<%app.supported_locales%>}/conference/{slug}', name: 'conference')]
+    public function show(Request           $request,
+                         Conference        $conference,
                          CommentRepository $commentRepository,
                          NotifierInterface $notifier,
-                         string $photoDir): Response
+                         string            $photoDir): Response
     {
         $comment = new Comment();
         $form = $this->createForm(CommentFormType::class, $comment);
@@ -133,7 +141,7 @@ class ConferenceController extends AbstractController
      * @throws RuntimeError
      * @throws LoaderError
      */
-    #[Route('/conference_header', name: 'conference_header')]
+    #[Route('/{_locale<%app.supported_locales%>}/conference_header', name: 'conference_header')]
     public function conferenceHeader(ConferenceRepository $conferenceRepository): Response
     {
         $response = new Response($this->twig->render('conference/header.html.twig',
