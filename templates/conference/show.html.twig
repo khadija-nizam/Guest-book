@@ -18,14 +18,13 @@
             {% if comments|length > 0 %}
                 {% for comment in comments %}
                     <div class="media shadow border rounded-3 p-3 mb-4">
-                        <div class="comment-img me-3">
-                            {% if comment.photofilename %}
+                        {% if comment.photofilename %}
+                            <div class="comment-img me-3">
                                 <a href="{{ asset('uploads/photos/' ~ comment.photofilename) }}" target="_blank">
-                                    <img src="{{ asset('uploads/photos/' ~ comment.photofilename) }}" />
+                                    <img src="{{ asset('uploads/photos/' ~ comment.photofilename) }}"/>
                                 </a>
-                            {% endif %}
-                        </div>
-
+                            </div>
+                        {% endif %}
                         <div class="media-body">
                             <h4 class="font-weight-light mb-0">
                                 {{ comment.author }}

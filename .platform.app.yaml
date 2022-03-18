@@ -6,10 +6,12 @@ runtime:
     extensions:
         - pdo_pgsql
         - apcu
+        - blackfire
         - mbstring
         - sodium
         - ctype
         - iconv
+        - xsl
         
 
 #variables:
