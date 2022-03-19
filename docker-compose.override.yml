@@ -3,7 +3,8 @@ version: '3'
 services:
   mailer:
     image: schickling/mailcatcher
-    ports: [ "1025", "1080" ]
+#    ports: [ "1025", "1080" ]
+    expose: [ "1025", "1080" ]
 
   blackfire:
     image: blackfire/blackfire:2
@@ -11,4 +12,5 @@ services:
     env_file: .env.local
     environment:
       BLACKFIRE_LOG_LEVEL: 4
-    ports: [ 8307 ]
+#    ports: ["8307"]
+    expose: ["8307"]
